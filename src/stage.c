@@ -1850,7 +1850,7 @@ void Stage_Tick(void)
 				//Draw number
 				score_src.y = 240;
 				score_src.w = 8;
-				score_dst.x += FIXED_DEC(40,1);
+				score_dst.x += FIXED_DEC(45,1);
 				score_dst.w = FIXED_DEC(8,1);
 				
 				for (const char *p = this->misses_text; ; p++)

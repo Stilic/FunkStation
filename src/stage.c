@@ -1718,6 +1718,9 @@ void Stage_Tick(void)
 							else
 								opponent_anote = note_anims[note->type & 0x3][(note->type & NOTE_FLAG_ALT_ANIM) != 0];
 							note->type |= NOTE_FLAG_HIT;
+							//Doing this because I didn't found a better way
+							PlayerState *this = &stage.player_state[1];
+							this->arrow_hitan[note->type & 0x3] = stage.step_time;
 						}
 					}
 					

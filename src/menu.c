@@ -939,7 +939,7 @@ void Menu_Tick(void)
 			} menu_options[] = {
 				{StageId_Kapi_1, "VS KAPI", false},
 				{StageId_Clwn_1, "VS TRICKY", true},
-				{StageId_Clwn_4, "   EXPURGATION", false},
+				{StageId_Clwn_4, "EXPURGATION", false},
 				{StageId_2_4,    "CLUCKED", false},
 			};
 			
@@ -1059,7 +1059,7 @@ void Menu_Tick(void)
 			} menu_options[] = {
 				{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
 				//{OptType_Boolean, "INTERPOLATION", &stage.expsync},
-				{OptType_Boolean, "GHOST TAP ", &stage.ghost, {.spec_boolean = {0}}},
+				{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {0}}},
 				{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
 			};
 			

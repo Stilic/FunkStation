@@ -177,6 +177,10 @@ typedef struct
 	boolean refresh_score;
 	s32 score, max_score;
 	char score_text[13];
+
+	boolean refresh_misses;
+	s32 misses;
+	char misses_text[13];
 	
 	u16 pad_held, pad_press;
 } PlayerState;

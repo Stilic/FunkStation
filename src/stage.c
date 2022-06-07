@@ -221,11 +221,12 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 		offset = -offset;
 	
 	u8 hit_type;
-	if (offset > stage.late_safe * 9 / 11)
+	//Hit windows from Psych Engine
+	if (offset > stage.late_safe * 7.5 / 11)
 		hit_type = 3; //SHIT
-	else if (offset > stage.late_safe * 6 / 11)
+	else if (offset > stage.late_safe * 5 / 11)
 		hit_type = 2; //BAD
-	else if (offset > stage.late_safe * 3 / 11)
+	else if (offset > stage.late_safe * 2.5 / 11)
 		hit_type = 1; //GOOD
 	else
 		hit_type = 0; //SICK
@@ -283,6 +284,10 @@ static void Stage_MissNote(PlayerState *this)
 		if (stage.gf != NULL && this->combo > 5)
 			stage.gf->set_anim(stage.gf, CharAnim_DownAlt); //Cry if we lost a large combo
 		this->combo = 0;
+
+		//Update misses
+		this->misses++;
+		this->refresh_misses = true;
 		
 		//Create combo object telling of our lost combo
 		Obj_Combo *combo = Obj_Combo_New(
@@ -415,6 +420,9 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 		this->health -= 400;
 		this->score -= 1;
 		this->refresh_score = true;
+
+		this->misses++;
+		this->refresh_misses = true;
 		
 		#ifdef PSXF_NETWORK
 			if (stage.mode >= StageMode_Net1)
@@ -1219,6 +1227,10 @@ static void Stage_LoadState(void)
 		stage.player_state[i].refresh_score = false;
 		stage.player_state[i].score = 0;
 		strcpy(stage.player_state[i].score_text, "0");
+
+		stage.player_state[i].refresh_misses = false;
+		stage.player_state[i].misses = 0;
+		strcpy(stage.player_state[i].misses_text, "0");
 		
 		stage.player_state[i].pad_held = stage.player_state[i].pad_press = 0;
 	}
@@ -1793,6 +1805,55 @@ void Stage_Tick(void)
 				score_dst.w = FIXED_DEC(8,1);
 				
 				for (const char *p = this->score_text; ; p++)
+				{
+					//Get character
+					char c = *p;
+					if (c == '\0')
+						break;
+					
+					//Draw character
+					if (c == '-')
+						score_src.x = 160;
+					else //Should be a number
+						score_src.x = 80 + ((c - '0') << 3);
+					
+					Stage_DrawTex(&stage.tex_hud0, &score_src, &score_dst, stage.bump);
+					
+					//Move character right
+					score_dst.x += FIXED_DEC(7,1);
+				}
+			}
+
+			//Draw misses
+			for (int i = 0; i < ((stage.mode >= StageMode_2P) ? 2 : 1); i++)
+			{
+				PlayerState *this = &stage.player_state[i];
+				
+				//Get string representing number
+				if (this->refresh_misses)
+				{
+					if (this->score != 0)
+						sprintf(this->misses_text, "%d", this->misses);
+					else
+						strcpy(this->misses_text, "0");
+					this->refresh_misses = false;
+				}
+				
+				//Display misses
+				RECT score_src = {169, 240, 35, 10};
+				RECT_FIXED score_dst = {(i ^ (stage.mode == StageMode_Swap)) ? FIXED_DEC(-200,1) : FIXED_DEC(-75,1), (SCREEN_HEIGHT2 - 42) << FIXED_SHIFT, FIXED_DEC(40,1), FIXED_DEC(10,1)};
+				if (stage.downscroll)
+					score_dst.y = -score_dst.y - score_dst.h;
+				
+				Stage_DrawTex(&stage.tex_hud0, &score_src, &score_dst, stage.bump);
+				
+				//Draw number
+				score_src.y = 240;
+				score_src.w = 8;
+				score_dst.x += FIXED_DEC(40,1);
+				score_dst.w = FIXED_DEC(8,1);
+				
+				for (const char *p = this->misses_text; ; p++)
 				{
 					//Get character
 					char c = *p;

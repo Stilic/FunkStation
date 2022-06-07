@@ -79,7 +79,7 @@ TIP: For any make, try appending `-jX` to the end of it, where X is the number o
 You can read more about these asset formats in [FORMATS.md](/FORMATS.md)
 
 ## Compiling PSXFunkin
-If everything went well, you can `cd` back to the repo directory, run `make`, and it will compile the game and spit out a `funkin.ps-exe` in the same directory.
+If everything went well, run `make`, and it will compile the game and spit out a `funkin.ps-exe` in the same directory.
 
 You'll need to either get a PSX license file and save it as licensea.dat in the same directory as funkin.xml (you can get them at http://www.psxdev.net/downloads.html's `PsyQ SDK`), or remove the referencing line `<license file="licensea.dat"/>` from funkin.xml. Without the license file, the game may fail on a bunch of emulators due to bios checks (unless you use fast boot, I believe?)
 

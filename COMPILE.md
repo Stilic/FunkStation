@@ -1,4 +1,4 @@
-# Compiling PSXFunkin
+# Compiling guide for FunkStation
 
 ## Setting up the Development Environment
 First off, you'll need a terminal one way or another.
@@ -54,7 +54,7 @@ Then do `ls build/`, and if it went well, you should see a folder that starts wi
 
 Finally, do `sudo cp mkpsxiso /usr/local/bin/mkpsxiso` (MSYS2 doesn't have sudo, so just omit it)
 
-This will allow you to call mkpsxiso from anywhere (like the PSXFunkin repo).
+This will allow you to call mkpsxiso from anywhere (like in this folder).
 
 ## Copying PsyQ files
 First, go to the [mips](/mips/) folder of the repo, and create a new folder named `psyq`.
@@ -78,7 +78,7 @@ TIP: For any make, try appending `-jX` to the end of it, where X is the number o
 
 You can read more about these asset formats in [FORMATS.md](/FORMATS.md)
 
-## Compiling PSXFunkin
+## Compiling
 If everything went well, run `make`, and it will compile the game and spit out a `funkin.ps-exe` in the same directory.
 
 You'll need to either get a PSX license file and save it as licensea.dat in the same directory as funkin.xml (you can get them at http://www.psxdev.net/downloads.html's `PsyQ SDK`), or remove the referencing line `<license file="licensea.dat"/>` from funkin.xml. Without the license file, the game may fail on a bunch of emulators due to bios checks (unless you use fast boot, I believe?)

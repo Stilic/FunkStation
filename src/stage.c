@@ -278,16 +278,16 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 
 static void Stage_MissNote(PlayerState *this)
 {
+	//Update misses
+	this->misses++;
+	this->refresh_misses = true;
+
 	if (this->combo)
 	{
 		//Kill combo
 		if (stage.gf != NULL && this->combo > 5)
 			stage.gf->set_anim(stage.gf, CharAnim_DownAlt); //Cry if we lost a large combo
 		this->combo = 0;
-
-		//Update misses
-		this->misses++;
-		this->refresh_misses = true;
 		
 		//Create combo object telling of our lost combo
 		Obj_Combo *combo = Obj_Combo_New(
@@ -365,9 +365,6 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 			
 			//Hit the mine
 			note->type |= NOTE_FLAG_HIT;
-
-			this->misses++;
-			this->refresh_misses = true;
 			
 			if (stage.stage_id == StageId_Clwn_4)
 				this->health = -0x7000;

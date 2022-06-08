@@ -13,6 +13,7 @@
         "xmemory": "c",
         "xstring": "c",
         "xtr1common": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "random.h": "c"
     }
 }

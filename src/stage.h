@@ -15,6 +15,7 @@
 #include "character.h"
 #include "player.h"
 #include "object.h"
+#include "font.h"
 
 #include "network.h"
 
@@ -173,14 +174,12 @@ typedef struct
 	
 	s16 health;
 	u16 combo;
-	
-	boolean refresh_score;
-	s32 score, max_score;
-	char score_text[13];
 
-	boolean refresh_misses;
+	char info_text[100];
+	s32 score, max_score;
 	s32 misses;
-	char misses_text[13];
+	
+	s32 accuracy, min_accuracy, max_accuracy;
 	
 	u16 pad_held, pad_press;
 } PlayerState;
@@ -195,6 +194,9 @@ typedef struct
 	
 	//HUD textures
 	Gfx_Tex tex_hud0, tex_hud1;
+
+	//Font
+	FontData font_cdr;
 	
 	//Stage data
 	const StageDef *stage_def;

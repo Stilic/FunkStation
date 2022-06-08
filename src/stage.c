@@ -365,6 +365,9 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 			
 			//Hit the mine
 			note->type |= NOTE_FLAG_HIT;
+
+			this->misses++;
+			this->refresh_misses = true;
 			
 			if (stage.stage_id == StageId_Clwn_4)
 				this->health = -0x7000;
@@ -1715,7 +1718,8 @@ void Stage_Tick(void)
 							else
 								opponent_anote = note_anims[note->type & 0x3][(note->type & NOTE_FLAG_ALT_ANIM) != 0];
 							note->type |= NOTE_FLAG_HIT;
-							stage.player_state[1].arrow_hitan[note->type & 0x3] = stage.step_time;
+							//Simulate strum light
+							stage.player_state[1].arrow_hitan[note->type & 0x3] = stage.step_time + stage.step_time / 2;
 						}
 					}
 					

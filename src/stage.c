@@ -278,10 +278,6 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 
 static void Stage_MissNote(PlayerState *this)
 {
-	//Update misses
-	this->misses++;
-	this->refresh_misses = true;
-
 	if (this->combo)
 	{
 		//Kill combo
@@ -420,6 +416,8 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 		this->health -= 400;
 		this->score -= 1;
 		this->refresh_score = true;
+		this->misses++;
+		this->refresh_misses = true;
 		
 		#ifdef PSXF_NETWORK
 			if (stage.mode >= StageMode_Net1)
@@ -831,6 +829,8 @@ static void Stage_DrawNotes(void)
 					Stage_CutVocal();
 					Stage_MissNote(this);
 					this->health -= 475;
+					this->misses++;
+					this->refresh_misses = true;
 					
 					//Send miss packet
 					#ifdef PSXF_NETWORK
@@ -1716,7 +1716,10 @@ void Stage_Tick(void)
 								opponent_anote = note_anims[note->type & 0x3][(note->type & NOTE_FLAG_ALT_ANIM) != 0];
 							note->type |= NOTE_FLAG_HIT;
 							//Simulate strum light
-							stage.player_state[1].arrow_hitan[note->type & 0x3] = stage.step_time + stage.step_time / 2;
+							fixed_t hit_time = stage.step_time * 1.5;
+							if ((note->type & NOTE_FLAG_SUSTAIN) && !(note->type & NOTE_FLAG_SUSTAIN_END))
+								hit_time /= 1.5;
+							stage.player_state[1].arrow_hitan[note->type & 0x3] = hit_time;
 						}
 					}
 					

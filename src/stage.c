@@ -420,9 +420,6 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 		this->health -= 400;
 		this->score -= 1;
 		this->refresh_score = true;
-
-		this->misses++;
-		this->refresh_misses = true;
 		
 		#ifdef PSXF_NETWORK
 			if (stage.mode >= StageMode_Net1)

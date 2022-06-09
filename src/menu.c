@@ -401,8 +401,8 @@ void Menu_Tick(void)
 		} spec;
 	} game_options[] = {
 		{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
-		{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {1}}},
 		{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
+		{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {1}}},
 		{OptType_Boolean, "DYNAMIC CAMERA", &stage.dynamic_camera, {.spec_boolean = {0}}},
 		{OptType_Boolean, "DAD STRUMS GLOW", &stage.dad_notes_glow, {.spec_boolean = {1}}},
 	};

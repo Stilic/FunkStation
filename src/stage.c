@@ -1505,7 +1505,7 @@ void Stage_Tick(void)
 			stage.flag &= ~(STAGE_FLAG_JUST_STEP | STAGE_FLAG_SCORE_REFRESH);
 
 			//Camera follow on note hit
-			if (stage.dynamic_camera && stage.mode != StageMode_2P)
+			if (stage.dynamic_camera)
 			{
 				//Get character
 				Character *this;
@@ -1515,7 +1515,7 @@ void Stage_Tick(void)
 					this = stage.player;
 
 				//Set camera values based on animation
-				static const fixed_t add = FIXED_DEC(2,10);
+				static const fixed_t add = FIXED_DEC(2,5);
 				switch (this->animatable.anim)
 				{
 					case CharAnim_Left:
@@ -1798,7 +1798,7 @@ void Stage_Tick(void)
 				//Draw text
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
-					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(10,1) : FIXED_DEC(-96,1), 
+					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(10,1) : FIXED_DEC(-80,1), 
 					(SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
 					FontAlign_Center
 				);

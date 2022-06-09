@@ -375,7 +375,8 @@ void Menu_Tick(void)
 		menu.select = menu.next_select;
 	}
 
-	static const char *gamemode_strs[] = {"NORMAL", "SWAP", "TWO PLAYER"};
+	//static const char *gamemode_strs[] = {"NORMAL", "SWAP", "TWO PLAYER"};
+	static const char *gamemode_strs[] = {"NORMAL", "SWAP"};
 	static boolean initialized = 0;
 	static const struct
 	{
@@ -383,7 +384,7 @@ void Menu_Tick(void)
 		{
 			OptType_Boolean,
 			OptType_Enum,
-		} type;
+		} type;	
 		const char *text;
 		void *value;
 		union
@@ -402,18 +403,18 @@ void Menu_Tick(void)
 		{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
 		{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {1}}},
 		{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
-		{OptType_Boolean, "DYNAMIC CAMERA", &stage.dynamic_camera, {.spec_boolean = {1}}},
+		{OptType_Boolean, "DYNAMIC CAMERA", &stage.dynamic_camera, {.spec_boolean = {0}}},
 		{OptType_Boolean, "DAD STRUMS GLOW", &stage.dad_notes_glow, {.spec_boolean = {1}}},
 	};
 
-	//Initialize game options
+	//Initialize game boolean options
 	if (!initialized)
 	{
-		initialized = 1;
-
 		for (u8 i = 0; i < COUNT_OF(game_options); i++)
 			if (game_options[i].type == OptType_Boolean)
-				*((int*)game_options[i].value) = game_options[i].spec.spec_boolean.a;
+				*((boolean*)game_options[i].value) = game_options[i].spec.spec_boolean.a;
+
+		initialized = 1;
 	}
 	
 	//Tick menu page

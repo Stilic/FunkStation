@@ -1503,6 +1503,39 @@ void Stage_Tick(void)
 		{
 			//Clear per-frame flags
 			stage.flag &= ~(STAGE_FLAG_JUST_STEP | STAGE_FLAG_SCORE_REFRESH);
+
+			//Camera follow on note hit
+			if (stage.dynamic_camera && stage.mode != StageMode_2P)
+			{
+				//Get character
+				Character *this;
+				if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
+					this = stage.opponent;
+				else
+					this = stage.player;
+
+				//Set camera values based on animation
+				static const fixed_t add = FIXED_DEC(2,10);
+				switch (this->animatable.anim)
+				{
+					case CharAnim_Left:
+					case CharAnim_LeftAlt:
+						stage.camera.x -= add;
+						break;
+					case CharAnim_Down:
+					case CharAnim_DownAlt:
+						stage.camera.y += add;
+						break;
+					case CharAnim_Up:
+					case CharAnim_UpAlt:
+						stage.camera.y -= add;
+						break;
+					case CharAnim_Right:
+					case CharAnim_RightAlt:
+						stage.camera.x += add;
+						break;
+				}
+			}
 			
 			//Get song position
 			boolean playing;
@@ -1524,7 +1557,6 @@ void Stage_Tick(void)
 			else
 			#endif
 			{
-				const fixed_t interp_int = FIXED_UNIT * 8 / 75;
 				if (stage.note_scroll < 0)
 				{
 					//Play countdown sequence
@@ -1559,34 +1591,10 @@ void Stage_Tick(void)
 					fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
-					//Get playing song position
-					if (audio_time_pof > 0)
-					{
-						stage.song_time += timer_dt;
-						stage.interp_time += timer_dt;
-					}
-					
-					if (stage.interp_time >= interp_int)
-					{
-						//Update interp state
-						while (stage.interp_time >= interp_int)
-							stage.interp_time -= interp_int;
-						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-					}
-					
-					//Resync
-					fixed_t next_time = stage.interp_ms + stage.interp_time;
-					if (stage.song_time >= next_time + FIXED_DEC(25,1000) || stage.song_time <= next_time - FIXED_DEC(25,1000))
-					{
-						stage.song_time = next_time;
-					}
-					else
-					{
-						if (stage.song_time < next_time - FIXED_DEC(1,1000))
-							stage.song_time += FIXED_DEC(1,1000);
-						if (stage.song_time > next_time + FIXED_DEC(1,1000))
-							stage.song_time -= FIXED_DEC(1,1000);
-					}
+					//Sync
+					stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+					stage.interp_time = 0;
+					stage.song_time = stage.interp_ms;
 					
 					playing = true;
 					
@@ -1710,10 +1718,10 @@ void Stage_Tick(void)
 							//Simulate strum light
 							if (stage.dad_notes_glow)
 							{
-								fixed_t hit_time = stage.step_time * 1.5;
+								fixed_t time = stage.step_time;
 								if ((note->type & NOTE_FLAG_SUSTAIN) && !(note->type & NOTE_FLAG_SUSTAIN_END))
-									hit_time /= 1.5;
-								stage.player_state[1].arrow_hitan[note->type & 0x3] = hit_time;
+									time /= 1.25;
+								stage.player_state[1].arrow_hitan[note->type & 0x3] = time;
 							}
 							
 						}

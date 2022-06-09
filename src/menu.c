@@ -374,6 +374,47 @@ void Menu_Tick(void)
 		menu.page = menu.next_page;
 		menu.select = menu.next_select;
 	}
+
+	static const char *gamemode_strs[] = {"NORMAL", "SWAP", "TWO PLAYER"};
+	static boolean initialized = 0;
+	static const struct
+	{
+		enum
+		{
+			OptType_Boolean,
+			OptType_Enum,
+		} type;
+		const char *text;
+		void *value;
+		union
+		{
+			struct
+			{
+				int a;
+			} spec_boolean;
+			struct
+			{
+				s32 max;
+				const char **strs;
+			} spec_enum;
+		} spec;
+	} game_options[] = {
+		{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
+		{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {1}}},
+		{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
+		{OptType_Boolean, "DYNAMIC CAMERA", &stage.dynamic_camera, {.spec_boolean = {1}}},
+		{OptType_Boolean, "DAD STRUMS GLOW", &stage.dad_notes_glow, {.spec_boolean = {1}}},
+	};
+
+	//Initialize game options
+	if (!initialized)
+	{
+		initialized = 1;
+
+		for (u8 i = 0; i < COUNT_OF(game_options); i++)
+			if (game_options[i].type == OptType_Boolean)
+				*((int*)game_options[i].value) = game_options[i].spec.spec_boolean.a;
+	}
 	
 	//Tick menu page
 	MenuPage exec_page;
@@ -1033,39 +1074,10 @@ void Menu_Tick(void)
 			break;
 		}
 		case MenuPage_Options:
-		{
-			static const char *gamemode_strs[] = {"NORMAL", "SWAP", "TWO PLAYER"};
-			static const struct
-			{
-				enum
-				{
-					OptType_Boolean,
-					OptType_Enum,
-				} type;
-				const char *text;
-				void *value;
-				union
-				{
-					struct
-					{
-						int a;
-					} spec_boolean;
-					struct
-					{
-						s32 max;
-						const char **strs;
-					} spec_enum;
-				} spec;
-			} menu_options[] = {
-				{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
-				{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {0}}},
-				{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
-				{OptType_Boolean, "OPPONENT STRUMS GLOW", &stage.dad_notes_glow, {.spec_boolean = {1}}},
-			};
-			
+		{			
 			//Initialize page
 			if (menu.page_swap)
-				menu.scroll = COUNT_OF(menu_options) * FIXED_DEC(24 + SCREEN_HEIGHT2,1);
+				menu.scroll = COUNT_OF(game_options) * FIXED_DEC(24 + SCREEN_HEIGHT2,1);
 			
 			//Draw page label
 			menu.font_bold.draw(&menu.font_bold,
@@ -1084,30 +1096,30 @@ void Menu_Tick(void)
 					if (menu.select > 0)
 						menu.select--;
 					else
-						menu.select = COUNT_OF(menu_options) - 1;
+						menu.select = COUNT_OF(game_options) - 1;
 				}
 				if (pad_state.press & PAD_DOWN)
 				{
-					if (menu.select < COUNT_OF(menu_options) - 1)
+					if (menu.select < COUNT_OF(game_options) - 1)
 						menu.select++;
 					else
 						menu.select = 0;
 				}
 				
 				//Handle option changing
-				switch (menu_options[menu.select].type)
+				switch (game_options[menu.select].type)
 				{
 					case OptType_Boolean:
 						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
-							*((boolean*)menu_options[menu.select].value) ^= 1;
+							*((boolean*)game_options[menu.select].value) ^= 1;
 						break;
 					case OptType_Enum:
 						if (pad_state.press & PAD_LEFT)
-							if (--*((s32*)menu_options[menu.select].value) < 0)
-								*((s32*)menu_options[menu.select].value) = menu_options[menu.select].spec.spec_enum.max - 1;
+							if (--*((s32*)game_options[menu.select].value) < 0)
+								*((s32*)game_options[menu.select].value) = game_options[menu.select].spec.spec_enum.max - 1;
 						if (pad_state.press & PAD_RIGHT)
-							if (++*((s32*)menu_options[menu.select].value) >= menu_options[menu.select].spec.spec_enum.max)
-								*((s32*)menu_options[menu.select].value) = 0;
+							if (++*((s32*)game_options[menu.select].value) >= game_options[menu.select].spec.spec_enum.max)
+								*((s32*)game_options[menu.select].value) = 0;
 						break;
 				}
 				
@@ -1124,7 +1136,7 @@ void Menu_Tick(void)
 			s32 next_scroll = menu.select * FIXED_DEC(24,1);
 			menu.scroll += (next_scroll - menu.scroll) >> 4;
 			
-			for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+			for (u8 i = 0; i < COUNT_OF(game_options); i++)
 			{
 				//Get position on screen
 				s32 y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
@@ -1135,13 +1147,13 @@ void Menu_Tick(void)
 				
 				//Draw text
 				char text[0x80];
-				switch (menu_options[i].type)
+				switch (game_options[i].type)
 				{
 					case OptType_Boolean:
-						sprintf(text, "%s %s", menu_options[i].text, *((boolean*)menu_options[i].value) ? "ON" : "OFF");
+						sprintf(text, "%s %s", game_options[i].text, *((boolean*)game_options[i].value) ? "ON" : "OFF");
 						break;
 					case OptType_Enum:
-						sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((s32*)menu_options[i].value)]);
+						sprintf(text, "%s %s", game_options[i].text, game_options[i].spec.spec_enum.strs[*((s32*)game_options[i].value)]);
 						break;
 				}
 				menu.font_bold.draw(&menu.font_bold,

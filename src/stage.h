@@ -187,7 +187,7 @@ typedef struct
 typedef struct
 {
 	//Stage settings
-	boolean ghost, downscroll, expsync;
+	boolean ghost, downscroll, dad_notes_glow;
 	s32 mode;
 	
 	u32 offset;

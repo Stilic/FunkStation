@@ -1559,43 +1559,33 @@ void Stage_Tick(void)
 					fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
-					if (stage.expsync)
+					//Get playing song position
+					if (audio_time_pof > 0)
 					{
-						//Get playing song position
-						if (audio_time_pof > 0)
-						{
-							stage.song_time += timer_dt;
-							stage.interp_time += timer_dt;
-						}
-						
-						if (stage.interp_time >= interp_int)
-						{
-							//Update interp state
-							while (stage.interp_time >= interp_int)
-								stage.interp_time -= interp_int;
-							stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-						}
-						
-						//Resync
-						fixed_t next_time = stage.interp_ms + stage.interp_time;
-						if (stage.song_time >= next_time + FIXED_DEC(25,1000) || stage.song_time <= next_time - FIXED_DEC(25,1000))
-						{
-							stage.song_time = next_time;
-						}
-						else
-						{
-							if (stage.song_time < next_time - FIXED_DEC(1,1000))
-								stage.song_time += FIXED_DEC(1,1000);
-							if (stage.song_time > next_time + FIXED_DEC(1,1000))
-								stage.song_time -= FIXED_DEC(1,1000);
-						}
+						stage.song_time += timer_dt;
+						stage.interp_time += timer_dt;
+					}
+					
+					if (stage.interp_time >= interp_int)
+					{
+						//Update interp state
+						while (stage.interp_time >= interp_int)
+							stage.interp_time -= interp_int;
+						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+					}
+					
+					//Resync
+					fixed_t next_time = stage.interp_ms + stage.interp_time;
+					if (stage.song_time >= next_time + FIXED_DEC(25,1000) || stage.song_time <= next_time - FIXED_DEC(25,1000))
+					{
+						stage.song_time = next_time;
 					}
 					else
 					{
-						//Old sync
-						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-						stage.interp_time = 0;
-						stage.song_time = stage.interp_ms;
+						if (stage.song_time < next_time - FIXED_DEC(1,1000))
+							stage.song_time += FIXED_DEC(1,1000);
+						if (stage.song_time > next_time + FIXED_DEC(1,1000))
+							stage.song_time -= FIXED_DEC(1,1000);
 					}
 					
 					playing = true;
@@ -1718,10 +1708,14 @@ void Stage_Tick(void)
 								opponent_anote = note_anims[note->type & 0x3][(note->type & NOTE_FLAG_ALT_ANIM) != 0];
 							note->type |= NOTE_FLAG_HIT;
 							//Simulate strum light
-							fixed_t hit_time = stage.step_time * 1.5;
-							if ((note->type & NOTE_FLAG_SUSTAIN) && !(note->type & NOTE_FLAG_SUSTAIN_END))
-								hit_time /= 1.5;
-							stage.player_state[1].arrow_hitan[note->type & 0x3] = hit_time;
+							if (stage.dad_notes_glow)
+							{
+								fixed_t hit_time = stage.step_time * 1.5;
+								if ((note->type & NOTE_FLAG_SUSTAIN) && !(note->type & NOTE_FLAG_SUSTAIN_END))
+									hit_time /= 1.5;
+								stage.player_state[1].arrow_hitan[note->type & 0x3] = hit_time;
+							}
+							
 						}
 					}
 					

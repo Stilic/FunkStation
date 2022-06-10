@@ -1515,23 +1515,24 @@ void Stage_Tick(void)
 					this = stage.player;
 
 				//Set camera values based on animation
+				static const fixed_t add = FIXED_DEC(4,15);
 				switch (this->animatable.anim)
 				{
 					case CharAnim_Left:
 					case CharAnim_LeftAlt:
-						stage.camera.x -= STAGE_DYNAMIC_CAM_ADD;
+						stage.camera.x -= add;
 						break;
 					case CharAnim_Down:
 					case CharAnim_DownAlt:
-						stage.camera.y += STAGE_DYNAMIC_CAM_ADD;
+						stage.camera.y += add;
 						break;
 					case CharAnim_Up:
 					case CharAnim_UpAlt:
-						stage.camera.y -= STAGE_DYNAMIC_CAM_ADD;
+						stage.camera.y -= add;
 						break;
 					case CharAnim_Right:
 					case CharAnim_RightAlt:
-						stage.camera.x += STAGE_DYNAMIC_CAM_ADD;
+						stage.camera.x += add;
 						break;
 				}
 			}

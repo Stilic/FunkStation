@@ -376,7 +376,6 @@ void Menu_Tick(void)
 	}
 
 	//static const char *gamemode_strs[] = {"NORMAL", "SWAP", "TWO PLAYER"};
-	static const char *gamemode_strs[] = {"NORMAL", "SWAP"};
 	static boolean initialized = 0;
 	static const struct
 	{
@@ -400,7 +399,7 @@ void Menu_Tick(void)
 			} spec_enum;
 		} spec;
 	} game_options[] = {
-		{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
+		//{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
 		{OptType_Boolean, "DOWNSCROLL", &stage.downscroll, {.spec_boolean = {0}}},
 		{OptType_Boolean, "GHOST TAPPING", &stage.ghost, {.spec_boolean = {1}}},
 		{OptType_Boolean, "DYNAMIC CAMERA", &stage.dynamic_camera, {.spec_boolean = {0}}},

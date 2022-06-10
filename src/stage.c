@@ -1797,9 +1797,9 @@ void Stage_Tick(void)
 				//Draw text
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
-					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(10,1) : FIXED_DEC(-95,1),
+					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(10,1) : SCREEN_WIDTH2,
 					(SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
-					FontAlign_Left
+					FontAlign_Center
 				);
 			}
 			

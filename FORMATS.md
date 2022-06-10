@@ -18,6 +18,8 @@ You should keep TPage and VRAM space in mind when positioning them. Look at the 
 
 TIMs should be packed into .arc files, and you can control the dependencies and rules of .tim conversion and packing in [Makefile.tim](/Makefile.tim).
 
+**[Help for place 4bpp textures](https://www.cuemath.com/numbers/multiples-of-64)**
+
 ## XA files
 
 In [iso/music/](/iso/music/), you can find .ogg files with .txt files for various groups of .xa files. The txt files are pretty obvious, so I won't go into much more detail here.

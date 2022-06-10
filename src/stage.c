@@ -1787,17 +1787,20 @@ void Stage_Tick(void)
 				
 				//Calculate accuracy
 				this->accuracy = (this->min_accuracy * 100) / this->max_accuracy;
-
+				
 				//Get text
+				char score_text[20] = "0";
+				if (this->score != 0)
+					sprintf(score_text, "%d0", this->score * stage.max_score / this->max_score);
+				char accuracy_text[10] = "?";
 				if (this->score != 0 || this->misses != 0)
-					sprintf(this->info_text, "Score:%d0  /  Misses:%d  /  Accuracy:%d%%", this->score * stage.max_score / this->max_score, this->misses, this->accuracy, 0, 100);
-				else
-					sprintf(this->info_text, "Score:0  /  Misses:0  /  Accuracy:?");
+					sprintf(accuracy_text, "%d%%", this->accuracy);
+				sprintf(this->info_text, "Score:%s  /  Misses:%d  /  Accuracy:%s", score_text, this->misses, accuracy_text);
 				
 				//Draw text
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
-					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 17),1),
+					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 18),1),
 					(SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
 					FontAlign_Center
 				);

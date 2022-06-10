@@ -1789,7 +1789,7 @@ void Stage_Tick(void)
 				this->accuracy = (this->min_accuracy * 100) / this->max_accuracy;
 
 				//Get text
-				if (this->score != 0)
+				if (this->score != 0 || this->misses != 0)
 					sprintf(this->info_text, "Score:%d0  /  Misses:%d  /  Accuracy:%d%%", this->score * stage.max_score / this->max_score, this->misses, this->accuracy, 0, 100);
 				else
 					sprintf(this->info_text, "Score:0  /  Misses:0  /  Accuracy:?");

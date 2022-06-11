@@ -1515,7 +1515,7 @@ void Stage_Tick(void)
 					this = stage.player;
 
 				//Set camera values based on animation
-				static const fixed_t add = FIXED_DEC(4,15);
+				static const fixed_t add = FIXED_DEC(3,10);
 				switch (this->animatable.anim)
 				{
 					case CharAnim_Left:

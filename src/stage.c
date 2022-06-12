@@ -1799,7 +1799,8 @@ void Stage_Tick(void)
 				if (this->score != 0 || this->misses != 0)
 				{
 					sprintf(accuracy_text, "%d%%", this->accuracy);
-
+					
+					//Set rank
 					for (u8 j = 0; j < COUNT_OF(ranks); j++)
 					{
 						if (ranks[j].accuracy_needed <= this->accuracy)

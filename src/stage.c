@@ -1790,7 +1790,7 @@ void Stage_Tick(void)
 				
 				//Set accuracy
 				this->accuracy = (this->min_accuracy * 100) / this->max_accuracy;
-
+				
 				//Get score, accuracy and rank text
 				char score_text[20] = "0";
 				if (this->score != 0)

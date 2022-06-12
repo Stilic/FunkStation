@@ -1780,28 +1780,45 @@ void Stage_Tick(void)
 				Stage_DrawStrum(i | 4, &note_src, &note_dst);
 				Stage_DrawTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump);
 			}
-
+			
+			static const Rank ranks[] = {{"S+", 100}, {"S", 90}, {"A", 80}, {"B", 70}, {"C", 60}, {"D", 50}, {"E", 40}, {"F", 30},};
+			
 			//Draw info text
 			for (int i = 0; i < ((stage.mode >= StageMode_2P) ? 2 : 1); i++)
 			{
 				PlayerState *this = &stage.player_state[i];
 				
-				//Calculate accuracy
+				//Set accuracy
 				this->accuracy = (this->min_accuracy * 100) / this->max_accuracy;
-				
-				//Get text
+
+				//Get score, accuracy and rank text
 				char score_text[20] = "0";
 				if (this->score != 0)
 					sprintf(score_text, "%d0", this->score * stage.max_score / this->max_score);
 				char accuracy_text[10] = "?";
 				if (this->score != 0 || this->misses != 0)
+				{
 					sprintf(accuracy_text, "%d%%", this->accuracy);
-				sprintf(this->info_text, "Score:%s  /  Misses:%d  /  Accuracy:%s", score_text, this->misses, accuracy_text);
+
+					for (u8 j = 0; j < COUNT_OF(ranks); j++)
+					{
+						if (ranks[j].accuracy_needed <= this->accuracy)
+						{
+							strcpy(this->rank, ranks[j].name);
+							break;
+						}
+					}
+				}
+				else
+					strcpy(this->rank, "N/A");
+				
+				//Get text
+				sprintf(this->info_text, "Score:%s  /  Misses:%d  /  Accuracy:%s  /  %s", score_text, this->misses, accuracy_text, this->rank);
 				
 				//Draw text
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
-					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 18),1),
+					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 13),1),
 					(SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
 					FontAlign_Center
 				);

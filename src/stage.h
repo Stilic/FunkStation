@@ -180,7 +180,8 @@ typedef struct
 	s32 misses;
 	
 	s32 accuracy, min_accuracy, max_accuracy;
-	
+	char rank[5];
+
 	u16 pad_held, pad_press;
 } PlayerState;
 
@@ -266,6 +267,12 @@ typedef struct
 } Stage;
 
 extern Stage stage;
+
+typedef struct 
+{
+	char name[3];
+	s32 accuracy_needed;
+} Rank;
 
 //Stage drawing functions
 void Stage_DrawTexCol(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 r, u8 g, u8 b);

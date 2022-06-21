@@ -8,6 +8,7 @@
 
 #include "../mem.h"
 #include "../main.h"
+#include "../mutil.h"
 
 //Gfx constants
 #define OTLEN 8
@@ -190,6 +191,43 @@ void Gfx_BlendRect(const RECT *rect, u8 r, u8 g, u8 b, u8 mode)
 	nextpri += sizeof(DR_TPAGE);
 }
 
+void Gfx_BlendTex(Gfx_Tex *tex, const RECT *src, const RECT *dst, u8 mode)
+{
+	//Manipulate rects to comply with GPU restrictions
+	RECT csrc, cdst;
+	csrc = *src;
+	cdst = *dst;
+	
+	if (dst->w < 0)
+		csrc.x--;
+	if (dst->h < 0)
+		csrc.y--;
+	
+	if ((csrc.x + csrc.w) >= 0x100)
+	{
+		csrc.w = 0xFF - csrc.x;
+		cdst.w = cdst.w * csrc.w / src->w;
+	}
+	if ((csrc.y + csrc.h) >= 0x100)
+	{
+		csrc.h = 0xFF - csrc.y;
+		cdst.h = cdst.h * csrc.h / src->h;
+	}
+	
+	//Add quad
+	POLY_FT4 *quad = (POLY_FT4*)nextpri;
+	setPolyFT4(quad);
+	setUVWH(quad, csrc.x, csrc.y, csrc.w, csrc.h);
+	setXYWH(quad, cdst.x, cdst.y, cdst.w, cdst.h);
+	setRGB0(quad, 0x80, 0x80, 0x80);
+	setSemiTrans(quad, mode);
+	quad->tpage = tex->tpage;
+	quad->clut = tex->clut;
+	
+	addPrim(ot[db], quad);
+	nextpri += sizeof(POLY_FT4);
+}
+
 void Gfx_BlitTexCol(Gfx_Tex *tex, const RECT *src, s32 x, s32 y, u8 r, u8 g, u8 b)
 {
 	//Add sprite
@@ -300,6 +338,86 @@ void Gfx_DrawTexCol(Gfx_Tex *tex, const RECT *src, const RECT *dst, u8 r, u8 g, 
 void Gfx_DrawTex(Gfx_Tex *tex, const RECT *src, const RECT *dst)
 {
 	Gfx_DrawTexCol(tex, src, dst, 0x80, 0x80, 0x80);
+}
+
+void Gfx_DrawTexRotate(Gfx_Tex *tex, const RECT *src, const RECT *dst, u8 angle)
+{	
+	s16 sin = MUtil_Sin(angle);
+	s16 cos = MUtil_Cos(angle);
+	int pw = dst->w / 2;
+    int ph = dst->h / 2;
+
+	//Get tank rotated points
+	POINT p0 = {-pw, -ph};
+	MUtil_RotatePoint(&p0, sin, cos);
+	
+	POINT p1 = { pw, -ph};
+	MUtil_RotatePoint(&p1, sin, cos);
+	
+	POINT p2 = {-pw,  ph};
+	MUtil_RotatePoint(&p2, sin, cos);
+	
+	POINT p3 = { pw,  ph};
+	MUtil_RotatePoint(&p3, sin, cos);
+	
+	POINT d0 = {
+		dst->x + p0.x,
+		dst->y + p0.y
+	};
+	POINT d1 = {
+		dst->x + p1.x,
+		dst->y + p1.y
+	};
+	POINT d2 = {
+        dst->x + p2.x,
+		dst->y + p2.y
+	};
+	POINT d3 = {
+        dst->x + p3.x,
+		dst->y + p3.y
+	};
+	
+    Gfx_DrawTexArb(tex, src, &d0, &d1, &d2, &d3);
+}
+
+void Gfx_BlendTexRotate(Gfx_Tex *tex, const RECT *src, const RECT *dst, u8 angle, u8 mode)
+{	
+	s16 sin = MUtil_Sin(angle);
+	s16 cos = MUtil_Cos(angle);
+	int pw = dst->w / 2;
+    int ph = dst->h / 2;
+
+	//Get tank rotated points
+	POINT p0 = {-pw, -ph};
+	MUtil_RotatePoint(&p0, sin, cos);
+	
+	POINT p1 = { pw, -ph};
+	MUtil_RotatePoint(&p1, sin, cos);
+	
+	POINT p2 = {-pw,  ph};
+	MUtil_RotatePoint(&p2, sin, cos);
+	
+	POINT p3 = { pw,  ph};
+	MUtil_RotatePoint(&p3, sin, cos);
+	
+	POINT d0 = {
+		dst->x + p0.x,
+		dst->y + p0.y
+	};
+	POINT d1 = {
+		dst->x + p1.x,
+		dst->y + p1.y
+	};
+	POINT d2 = {
+        dst->x + p2.x,
+		dst->y + p2.y
+	};
+	POINT d3 = {
+        dst->x + p3.x,
+		dst->y + p3.y
+	};
+	
+    Gfx_BlendTexArb(tex, src, &d0, &d1, &d2, &d3, mode);
 }
 
 void Gfx_DrawTexArbCol(Gfx_Tex *tex, const RECT *src, const POINT *p0, const POINT *p1, const POINT *p2, const POINT *p3, u8 r, u8 g, u8 b)

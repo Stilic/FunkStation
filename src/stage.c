@@ -12,6 +12,7 @@
 #include "pad.h"
 #include "main.h"
 #include "random.h"
+#include "mutil.h"
 #include "movie.h"
 #include "network.h"
 
@@ -668,6 +669,155 @@ void Stage_DrawTex(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t
 	Stage_DrawTexCol(tex, src, dst, zoom, 0x80, 0x80, 0x80);
 }
 
+void Stage_DrawTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 angle)
+{	
+	s16 sin = MUtil_Sin(angle);
+	s16 cos = MUtil_Cos(angle);
+	int pw = dst->w / 2000;
+    int ph = dst->h / 2000;
+
+	//Get rotated points
+	POINT p0 = {-pw, -ph};
+	MUtil_RotatePoint(&p0, sin, cos);
+	
+	POINT p1 = { pw, -ph};
+	MUtil_RotatePoint(&p1, sin, cos);
+	
+	POINT p2 = {-pw,  ph};
+	MUtil_RotatePoint(&p2, sin, cos);
+	
+	POINT p3 = { pw,  ph};
+	MUtil_RotatePoint(&p3, sin, cos);
+	
+	POINT_FIXED d0 = {
+		dst->x + ((fixed_t)p0.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p0.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d1 = {
+		dst->x + ((fixed_t)p1.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p1.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d2 = {
+        dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p2.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d3 = {
+        dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p3.y << FIXED_SHIFT)
+	};
+	
+    Stage_DrawTexArb(tex, src, &d0, &d1, &d2, &d3, zoom);
+}
+
+void Stage_BlendTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 angle, u8 mode)
+{	
+	s16 sin = MUtil_Sin(angle);
+	s16 cos = MUtil_Cos(angle);
+	int pw = dst->w / 2000;
+    int ph = dst->h / 2000;
+
+	//Get rotated points
+	POINT p0 = {-pw, -ph};
+	MUtil_RotatePoint(&p0, sin, cos);
+	
+	POINT p1 = { pw, -ph};
+	MUtil_RotatePoint(&p1, sin, cos);
+	
+	POINT p2 = {-pw,  ph};
+	MUtil_RotatePoint(&p2, sin, cos);
+	
+	POINT p3 = { pw,  ph};
+	MUtil_RotatePoint(&p3, sin, cos);
+	
+	POINT_FIXED d0 = {
+		dst->x + ((fixed_t)p0.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p0.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d1 = {
+		dst->x + ((fixed_t)p1.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p1.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d2 = {
+        dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p2.y << FIXED_SHIFT)
+	};
+	POINT_FIXED d3 = {
+        dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
+		dst->y + ((fixed_t)p3.y << FIXED_SHIFT)
+	};
+	
+    Stage_BlendTexArb(tex, src, &d0, &d1, &d2, &d3, zoom, mode);
+}
+
+void Stage_BlendTex(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 mode)
+{
+	fixed_t xz = dst->x;
+	fixed_t yz = dst->y;
+	fixed_t wz = dst->w;
+	fixed_t hz = dst->h;
+	
+	if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)
+	{
+		//Handle HUD drawing
+		if (tex == &stage.tex_hud0)
+		{
+			#ifdef STAGE_NOHUD
+				return;
+			#endif
+			if (src->y >= 128 && src->y < 224)
+			{
+				//Pixel perfect scrolling
+				xz &= FIXED_UAND;
+				yz &= FIXED_UAND;
+				wz &= FIXED_UAND;
+				hz &= FIXED_UAND;
+			}
+		}
+		else if (tex == &stage.tex_hud1)
+		{
+			#ifdef STAGE_NOHUD
+				return;
+			#endif
+		}
+		else
+		{
+			//Pixel perfect scrolling
+			xz &= FIXED_UAND;
+			yz &= FIXED_UAND;
+			wz &= FIXED_UAND;
+			hz &= FIXED_UAND;
+		}
+	}
+	else
+	{
+		//Don't draw if HUD and is disabled
+		if (tex == &stage.tex_hud0 || tex == &stage.tex_hud1)
+		{
+			#ifdef STAGE_NOHUD
+				return;
+			#endif
+		}
+	}
+	
+	fixed_t l = (SCREEN_WIDTH2  << FIXED_SHIFT) + FIXED_MUL(xz, zoom);// + FIXED_DEC(1,2);
+	fixed_t t = (SCREEN_HEIGHT2 << FIXED_SHIFT) + FIXED_MUL(yz, zoom);// + FIXED_DEC(1,2);
+	fixed_t r = l + FIXED_MUL(wz, zoom);
+	fixed_t b = t + FIXED_MUL(hz, zoom);
+	
+	l >>= FIXED_SHIFT;
+	t >>= FIXED_SHIFT;
+	r >>= FIXED_SHIFT;
+	b >>= FIXED_SHIFT;
+	
+	RECT sdst = {
+		l,
+		t,
+		r - l,
+		b - t,
+	};
+	Gfx_BlendTex(tex, src, &sdst, mode);
+}
+
 void Stage_DrawTexArb(Gfx_Tex *tex, const RECT *src, const POINT_FIXED *p0, const POINT_FIXED *p1, const POINT_FIXED *p2, const POINT_FIXED *p3, fixed_t zoom)
 {
 	//Don't draw if HUD and HUD is disabled
@@ -901,7 +1051,7 @@ static void Stage_DrawNotes(void)
 							note_dst.y = -note_dst.y;
 							note_dst.h = -note_dst.h;
 						}
-						Stage_DrawTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump);
+						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 2);
 					}
 				}
 				else
@@ -925,7 +1075,7 @@ static void Stage_DrawNotes(void)
 						
 						if (stage.downscroll)
 							note_dst.y = -note_dst.y - note_dst.h;
-						Stage_DrawTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump);
+						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 2);
 					}
 				}
 			}

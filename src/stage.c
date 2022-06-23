@@ -1970,7 +1970,7 @@ void Stage_Tick(void)
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
 					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 12),1),
-					stage.downscroll ? FIXED_DEC(-85, 1) : (SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
+					stage.downscroll ? FIXED_DEC(-85,1) : (SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
 					FontAlign_Center
 				);
 			}

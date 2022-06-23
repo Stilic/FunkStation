@@ -165,9 +165,6 @@ void Font_CDR_DrawCol(struct FontData *this, const char *text, fixed_t x, fixed_
 		RECT src = {font_cdrmap[c].charX, font_cdrmap[c].charY, font_cdrmap[c].charW, font_cdrmap[c].charL};
 		RECT_FIXED dst = {x, y, src.w << FIXED_SHIFT, src.h << FIXED_SHIFT};
 
-		if (stage.downscroll)
-			dst.y = -dst.y - dst.h;
-
 		Stage_DrawTexCol(&this->tex, &src, &dst, stage.bump, r, g, b);
 
 		//Increment X

@@ -1051,7 +1051,7 @@ static void Stage_DrawNotes(void)
 							note_dst.y = -note_dst.y;
 							note_dst.h = -note_dst.h;
 						}
-						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 2);
+						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 1);
 					}
 				}
 				else
@@ -1075,7 +1075,7 @@ static void Stage_DrawNotes(void)
 						
 						if (stage.downscroll)
 							note_dst.y = -note_dst.y - note_dst.h;
-						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 2);
+						Stage_BlendTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump, 1);
 					}
 				}
 			}
@@ -1964,13 +1964,13 @@ void Stage_Tick(void)
 					strcpy(this->rank, "N/A");
 				
 				//Get text
-				sprintf(this->info_text, "Score:%s  /  Misses:%d  /  Accuracy:%s  /  %s", score_text, this->misses, accuracy_text, this->rank);
+				sprintf(this->info_text, "Score: %s  /  Misses: %d  /  Accuracy: %s  /  %s", score_text, this->misses, accuracy_text, this->rank);
 				
 				//Draw text
 				stage.font_cdr.draw(&stage.font_cdr,
 					this->info_text,
-					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 13),1),
-					(SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
+					(stage.mode == StageMode_2P && i == 0) ? FIXED_DEC(-50,1) : FIXED_DEC(-(stage.font_cdr.get_width(&stage.font_cdr, this->info_text) / 2 - SCREEN_WIDTH / 12),1),
+					stage.downscroll ? FIXED_DEC(-85, 1) : (SCREEN_HEIGHT2 - 21) << FIXED_SHIFT,
 					FontAlign_Center
 				);
 			}

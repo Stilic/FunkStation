@@ -16,19 +16,17 @@ jobs:
       - name: Build
         run: |
           sudo apt update
-          sudo apt install gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu libtinyxml2-dev libswscale-dev ffmpeg libavformat-dev unzip rar wget
+          sudo apt install gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu libtinyxml2-dev libswscale-dev ffmpeg libavformat-dev unzip wget
           wget https://github.com/Lameguy64/mkpsxiso/releases/download/v2.02/mkpsxiso-2.02-Linux.deb
           sudo dpkg -i mkpsxiso-2.02-Linux.deb
           wget http://psx.arthus.net/sdk/Psy-Q/psyq-4_7-converted-light.zip
           unzip psyq-4_7-converted-light.zip
           mv psyq-4_7-converted mips/psyq
           bash build.sh
-          mkdir funkin
-          mv funkin.bin funkin
-          mv funkin.cue funkin
-          rar a funkin.rar funkin
 
       - uses: actions/upload-artifact@v3
         with:
           name: build
-          path: funkin.rar
+          path: |
+            funkin.bin
+            funkin.cue

@@ -1,5 +1,5 @@
 # FunkStation
-A fork of [PSXFunkin](https://github.com/cuckydev/PSXFunkin) with some Quality-Of-Life improvements (just like Kade Engine LOL).
+A fork of [PSXFunkin](https://github.com/cuckydev/PSXFunkin) with some Quality-Of-Life improvements (just like Kade Engine bruh).
 
 ## Compilation
 Refer to [COMPILE.md](/COMPILE.md) here.

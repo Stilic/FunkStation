@@ -1741,10 +1741,35 @@ void Stage_Tick(void)
 					fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
-					//Sync
-					stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-					stage.interp_time = 0;
-					stage.song_time = stage.interp_ms;
+					//Get playing song position
+					if (audio_time_pof > 0)
+					{
+						stage.song_time += timer_dt;
+						stage.interp_time += timer_dt;
+					}
+					
+					const fixed_t interp_int = FIXED_UNIT * 8 / 75;
+					if (stage.interp_time >= interp_int)
+					{
+						//Update interp state
+						while (stage.interp_time >= interp_int)
+							stage.interp_time -= interp_int;
+						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+					}
+					
+					//Resync
+					fixed_t next_time = stage.interp_ms + stage.interp_time;
+					if (stage.song_time >= next_time + FIXED_DEC(25,1000) || stage.song_time <= next_time - FIXED_DEC(25,1000))
+					{
+						stage.song_time = next_time;
+					}
+					else
+					{
+						if (stage.song_time < next_time - FIXED_DEC(1,1000))
+							stage.song_time += FIXED_DEC(1,1000);
+						if (stage.song_time > next_time + FIXED_DEC(1,1000))
+							stage.song_time -= FIXED_DEC(1,1000);
+					}
 					
 					playing = true;
 					
